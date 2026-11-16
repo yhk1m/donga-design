@@ -29,6 +29,7 @@
 - `position: fixed` 대신 래퍼 안의 `position: absolute`(시트, 토스트)나 `sticky`(하단 버튼)를 쓴다. 래퍼는 `position: relative`다.
 - `z-index`는 100 이하. 토큰 `--z-sticky` 10, `--z-sheet` 50, `--z-toast` 60을 쓴다.
 - `@import`, 외부 글꼴 주소, 외부 그림 주소를 쓰지 않는다.
+- `<!doctype html>`이 파일 맨 첫 줄이 되게 한다. 편집 도구가 그 앞에 주석(저작권 머리말 등)을 넣었으면 제출 전에 `<html>` 안이나 `<head>` 안으로 옮긴다. 검사기와 오래된 브라우저에서 문제가 될 수 있다.
 - `<body>`에는 여백을 없애는 `style="margin:0"` 하나만 둔다(태그 선택자를 쓰지 않으려고). 검사기에서 걸리면 지운다.
 
 ## 3. 스크립트

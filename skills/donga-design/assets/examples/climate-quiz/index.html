@@ -1,6 +1,6 @@
-<!-- © 2026 김용현 -->
 <!doctype html>
 <html lang="ko">
+<!-- © 2026 김용현 -->
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -68,6 +68,9 @@
   --warning:  #8a5a00;  --warning-weak:  #fdf3dc;
   --critical: #b42318;  --critical-weak: #fdeeea;
   --info:     #2a64d4;  --info-weak:     #eaf1fd;
+
+  /* 자료 색: 지도, 차트, 범례 계열. 빨강 주색, 상태색과 따로. 버튼에 쓰지 않음 */
+  --data-1: #2563c9; --data-2: #b4530a; --data-3: #0f7f86; --data-4: #6b7380;
 
   --accent: var(--accent-light);
   --on-accent: var(--on-accent-light);
@@ -154,6 +157,7 @@
     --accent: var(--accent-dark);
     --on-accent: var(--on-accent-dark);
     --second: #e8e8e8;
+    --data-1: #7aa5ff; --data-2: #ffa45c; --data-3: #4fc9cf; --data-4: #9aa3b0;
     --shadow-1: none; --shadow-2: none; --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4);
     color-scheme: dark;
   }
@@ -180,6 +184,7 @@
   --accent: var(--accent-dark);
   --on-accent: var(--on-accent-dark);
   --second: #e8e8e8;
+  --data-1: #7aa5ff; --data-2: #ffa45c; --data-3: #4fc9cf; --data-4: #9aa3b0;
   --shadow-1: none; --shadow-2: none; --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4);
   color-scheme: dark;
 }
@@ -193,6 +198,7 @@
   --positive: #0b7a52; --positive-weak: #e6f5ee; --warning: #8a5a00; --warning-weak: #fdf3dc;
   --critical: #b42318; --critical-weak: #fdeeea; --info: #2a64d4; --info-weak: #eaf1fd;
   --accent: var(--accent-light); --on-accent: var(--on-accent-light); --second: var(--second-base);
+  --data-1: #2563c9; --data-2: #b4530a; --data-3: #0f7f86; --data-4: #6b7380;
   color-scheme: light;
 }
 
@@ -299,10 +305,12 @@
   0%, 45% { opacity: 0; clip-path: inset(0 50% 0 50%); }
   100%    { opacity: 1; clip-path: inset(0 0 0 0); }
 }
+/* 움직임 줄이기: 벌어지는 움직임 없이 제자리에서 잠깐 나타나기만 한다 */
+@keyframes dc-logo-fade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .dc-content .dc-logo.is-open .dc-logo-d,
   .dc-content .dc-logo.is-open .dc-logo-o,
-  .dc-content .dc-logo.is-open .dc-logo-word { animation: none; }
+  .dc-content .dc-logo.is-open .dc-logo-word { animation: dc-logo-fade 0.4s linear both; }
 }
 
 

@@ -61,6 +61,9 @@
   --critical: #b42318;  --critical-weak: #fdeeea;
   --info:     #2a64d4;  --info-weak:     #eaf1fd;
 
+  /* 자료 색: 지도, 차트, 범례 계열. 빨강 주색, 상태색과 따로. 버튼에 쓰지 않음 */
+  --data-1: #2563c9; --data-2: #b4530a; --data-3: #0f7f86; --data-4: #6b7380;
+
   --accent: var(--accent-light);
   --on-accent: var(--on-accent-light);
   --second: var(--second-base);
@@ -146,6 +149,7 @@
     --accent: var(--accent-dark);
     --on-accent: var(--on-accent-dark);
     --second: #e8e8e8;
+    --data-1: #7aa5ff; --data-2: #ffa45c; --data-3: #4fc9cf; --data-4: #9aa3b0;
     --shadow-1: none; --shadow-2: none; --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4);
     color-scheme: dark;
   }
@@ -172,6 +176,7 @@
   --accent: var(--accent-dark);
   --on-accent: var(--on-accent-dark);
   --second: #e8e8e8;
+  --data-1: #7aa5ff; --data-2: #ffa45c; --data-3: #4fc9cf; --data-4: #9aa3b0;
   --shadow-1: none; --shadow-2: none; --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4);
   color-scheme: dark;
 }
@@ -185,6 +190,7 @@
   --positive: #0b7a52; --positive-weak: #e6f5ee; --warning: #8a5a00; --warning-weak: #fdf3dc;
   --critical: #b42318; --critical-weak: #fdeeea; --info: #2a64d4; --info-weak: #eaf1fd;
   --accent: var(--accent-light); --on-accent: var(--on-accent-light); --second: var(--second-base);
+  --data-1: #2563c9; --data-2: #b4530a; --data-3: #0f7f86; --data-4: #6b7380;
   color-scheme: light;
 }
 

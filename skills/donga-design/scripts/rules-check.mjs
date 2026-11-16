@@ -74,6 +74,9 @@ scan(page, 0, /\s(on[a-z]+)\s*=\s*["']/gi, '오류', '이벤트 속성', 'onclic
 scan(page, 0, /<a\b[^>]*target\s*=\s*["']?_blank/gi, '확인', '이동', '새 창 열기 링크예요. 출처 표시 외에는 쓰지 않아요');
 scan(page, 0, /<form\b[^>]*action\s*=/gi, '오류', '이동', '폼을 다른 주소로 보내지 않아요');
 
+// ----- 문서 첫 줄 -----
+if (!/^﻿?\s*<!doctype html>/i.test(src)) add('오류', '구조', file, 1, '<!doctype html>이 파일 맨 앞에 와야 해요. 앞에 있는 주석은 <head> 안으로 옮겨요');
+
 // ----- 래퍼 -----
 if (!/class\s*=\s*["'][^"']*\bdc-content\b/.test(page)) add('오류', '래퍼', file, 0, '화면 전체를 <div class="dc-content">로 감싸지 않았어요');
 
