@@ -269,3 +269,14 @@
   .dc-content { --dur-fast: 0ms; --dur: 0ms; --dur-slow: 0ms; }
   .dc-content .pressable:active { transform: none; }
 }
+
+/* ===== 태블릿 (references/tablet.md) ===== */
+@media (pointer: coarse) {
+  .dc-content { --touch: var(--touch-class); --btn-h-s: var(--touch-class); }
+}
+@media (min-width: 744px) {
+  .dc-content { --page-x: 1.5rem; --fs-body-lg: 1.125rem; }
+}
+@media (min-width: 1024px) and (orientation: landscape) {
+  .dc-content { --page-x: 2rem; }
+}

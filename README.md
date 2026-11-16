@@ -20,6 +20,10 @@ Claude Code나 Codex가 동아출판 자료의 화면을 만들 때 쓰는 프�
 
 ![로고 열림 애니메이션을 시간별로 나눈 그림](examples/logo-open-frames.png)
 
+**태블릿 레이아웃.** 동아출판 자료는 교실에서 학생 태블릿으로 가장 많이 엽니다. 그래서 휴대폰, 태블릿 세로, 태블릿 가로를 따로 설계합니다. 세로 태블릿은 넓은 한 칸에 선택지 2열, 가로 태블릿은 왼쪽에 그림이나 시뮬레이션을 고정하고 오른쪽에서 문제를 푸는 두 칸입니다. 터치 영역은 48px로 올리고, 방향을 바꿔도 푼 상태가 남고, 그래프는 화면 폭에 맞춰 다시 그려 글자가 커지지 않습니다.
+
+![같은 퀴즈의 태블릿 세로(라이트)와 태블릿 가로(다크) 화면](examples/climate-quiz-tablet.png)
+
 **구조와 보안 규칙.** 동아출판 프론트엔드 제작 가이드에서 디자인은 빼고 내용 규칙만 가져왔습니다.
 
 - CSS와 JS를 모두 담은 `index.html` 한 파일, 이미지와 글꼴만 `assets/` 폴더
@@ -79,7 +83,7 @@ node skills/donga-design/scripts/rules-check.mjs 제출폴더
 node skills/donga-design/scripts/check.mjs 제출폴더/index.html
 ```
 
-`rules-check.mjs`는 단일 파일 구조, 래퍼 밖 선택자, 금지된 코드, 외부 자원, 확대 막기, 대체 글 빠짐 같은 규칙 위반을 찾습니다. `check.mjs`는 라이트와 다크, 휴대폰 폭과 데스크톱 폭에서 글자 대비, 작은 글자, 이모지, 터치 영역, 가로 넘침을 찾습니다. 둘 다 문제가 있으면 끝 코드 1로 끝납니다.
+`rules-check.mjs`는 단일 파일 구조, 래퍼 밖 선택자, 금지된 코드, 외부 자원, 확대 막기, 대체 글 빠짐 같은 규칙 위반을 찾습니다. `check.mjs`는 라이트와 다크, 휴대폰(390), 태블릿 세로(820), 태블릿 가로(1180) 폭에서 글자 대비, 작은 글자, 이모지, 터치 영역, 가로 넘침을 찾습니다. 둘 다 문제가 있으면 끝 코드 1로 끝납니다.
 
 이 점검은 동아출판의 HTML 콘텐츠 검사기를 대신하지 못합니다. 두클래스에 올리기 전에는 담당자 검사기도 꼭 거쳐 주세요.
 
@@ -90,6 +94,7 @@ skills/donga-design/
   SKILL.md                   시작 절차, 원칙, 핵심 규칙, 금지 목록, 점검표
   references/brand.md        CI 색, 로고, 열림 애니메이션
   references/douclass.md     구조, 보안, 저장, 접근성, 제출 점검
+  references/tablet.md       태블릿 세로, 가로 배치와 터치
   references/tokens.md       글자, 간격, 모서리, 그림자, 움직임 값 (당토)
   references/patterns.md     화면 패턴 (당토)
   references/writing.md      화면 문구 규칙 (당토)

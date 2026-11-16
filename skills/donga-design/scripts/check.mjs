@@ -22,7 +22,7 @@ if (!target || !existsSync(target)) {
   process.exit(2);
 }
 const wi = args.indexOf('--widths');
-const widths = (wi >= 0 ? args[wi + 1] : '390,1280').split(',').map(Number).filter(Boolean);
+const widths = (wi >= 0 ? args[wi + 1] : '390,820,1180').split(',').map(Number).filter(Boolean);
 const asJson = args.includes('--json');
 
 function findChrome() {
