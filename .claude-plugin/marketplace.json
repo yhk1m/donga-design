@@ -1,0 +1,14 @@
+{
+  "name": "donga-design",
+  "owner": {
+    "name": "양정고등학교 지리교사 김용현",
+    "email": "bgnlkim@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "donga-design",
+      "source": "./",
+      "description": "동아출판 CI 색을 고정한 당토 디자인 규격의 프론트엔드 디자인 스킬"
+    }
+  ]
+}

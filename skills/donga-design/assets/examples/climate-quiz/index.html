@@ -1,0 +1,560 @@
+<!-- © 2026 김용현 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>기후 그래프 읽기</title>
+<style>
+/* © 2026 김용현 */
+/*
+  동아 디자인 토큰 (당토 디자인 규격 + 동아출판 CI 색 고정)
+  사용법
+    1. 이 파일 내용을 index.html의 <style> 안에 그대로 붙인다. (CSS 파일을 따로 두지 않는다)
+    2. 화면 전체를 <div class="dc-content">로 감싼다. 모든 규칙은 이 래퍼 안에서만 동작한다.
+       태그 선택자, :root, *, !important를 쓰지 않는다. 새 규칙도 ".dc-content .클래스" 형태로만 쓴다.
+    3. 색은 고정이다. 아래 "CI 색" 블록을 바꾸지 않는다. 다른 색이 필요하면 역할 색(--accent 등)을 쓴다.
+    4. 다이얼: 래퍼나 그 안의 영역에 data-density="compact"(촘촘), data-personality="brand"(브랜드).
+    5. 다크 모드: 시스템 설정을 따르고, 래퍼나 그 안의 영역에 data-theme="light|dark"로 강제할 수 있다.
+  글꼴: 외부 CDN을 쓰지 않는다. assets/fonts/ 의 Pretendard를 아래 @font-face로 불러온다.
+*/
+
+@font-face { font-family: "Pretendard"; font-weight: 400; font-display: swap; src: url("../../fonts/Pretendard-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard"; font-weight: 500; font-display: swap; src: url("../../fonts/Pretendard-Medium.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard"; font-weight: 600; font-display: swap; src: url("../../fonts/Pretendard-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard"; font-weight: 700; font-display: swap; src: url("../../fonts/Pretendard-Bold.woff2") format("woff2"); }
+
+.dc-content {
+  /* ===== CI 색 (고정, 바꾸지 않는다) ===== */
+  --donga-red: #ec1940;          /* CI 빨강. 로고와 브랜드 그래픽에만 */
+  --donga-ink: #333333;          /* CI 먹. 로고 ㄷ과 글자표 */
+
+  /* ===== 테마색 (CI에서 만든 값, 고정) ===== */
+  --accent-light: #d4153a;       /* 주색, 라이트: CI 빨강을 OKLCH 밝기만 내림. 흰 글자 대비 5.3 */
+  --on-accent-light: #ffffff;
+  --accent-dark: #ff5a72;        /* 주색, 다크: 밝게 올림. 위 글자 대비 6.2 */
+  --on-accent-dark: #2a0610;
+  --second-base: #333333;        /* 보조색 = CI 먹: 머리 띠, 로고, 차트 둘째 계열. 버튼에 쓰지 않음 */
+
+  /* ===== 회색 10단계 (남색 기운) ===== */
+  --gray-50: #f8f9fb;
+  --gray-100: #f1f3f6;
+  --gray-200: #e4e7ec;
+  --gray-300: #d0d5dd;
+  --gray-400: #a9b1bd;
+  --gray-500: #868f9c;
+  --gray-600: #646d7a;
+  --gray-700: #4a5260;
+  --gray-800: #2f3640;
+  --gray-900: #1a1e25;
+
+  /* ===== 역할 색, 라이트 ===== */
+  --bg: var(--gray-100);
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --fill-subtle: var(--gray-100);
+  --text-strong: var(--gray-900);
+  --text: var(--gray-700);
+  --text-muted: var(--gray-600);
+  --icon-muted: var(--gray-500);
+  --text-disabled: var(--gray-400);
+  --line: rgba(16, 24, 40, 0.08);
+  --line-strong: rgba(16, 24, 40, 0.16);
+  --focus: #2a64d4;
+  --logo-ink: var(--donga-ink);
+
+  /* 위험색은 주색(빨강)과 헷갈리지 않게 주황 쪽으로 옮긴 빨강. 늘 아이콘과 문구를 함께 쓴다 */
+  --positive: #0b7a52;  --positive-weak: #e6f5ee;
+  --warning:  #8a5a00;  --warning-weak:  #fdf3dc;
+  --critical: #b42318;  --critical-weak: #fdeeea;
+  --info:     #2a64d4;  --info-weak:     #eaf1fd;
+
+  --accent: var(--accent-light);
+  --on-accent: var(--on-accent-light);
+  --second: var(--second-base);
+
+  /* ===== 글자 (편안 기본) ===== */
+  --font: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-display: var(--font);
+  --fs-caption: 0.8125rem;  /* 13 */
+  --fs-small: 0.875rem;     /* 14 */
+  --fs-body: 1rem;          /* 16 */
+  --fs-body-lg: 1.125rem;   /* 18: 학생 개인 기기 본문 권장 */
+  --fs-title-s: 1.25rem;    /* 20 */
+  --fs-title: 1.5rem;       /* 24 */
+  --fs-title-l: 1.875rem;   /* 30 */
+  --lh-body: 1.5;
+  --lh-title: 1.35;
+  --ls-title: -0.025em;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* ===== 크기 (편안) ===== */
+  --row-h: 3.5rem;
+  --btn-h: 3.25rem;
+  --btn-h-s: 2.75rem;       /* 작은 버튼도 44 (두클래스 최소 터치 영역) */
+  --touch: 2.75rem;         /* 44, 교실 화면은 --touch-class */
+  --touch-class: 3rem;      /* 48 */
+  --page-x: 1.25rem;
+
+  /* ===== 간격 (4px 단위) ===== */
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.25rem; --sp-6: 1.5rem; --sp-8: 2rem; --sp-10: 2.5rem; --sp-12: 3rem; --sp-16: 4rem;
+
+  /* ===== 모서리 ===== */
+  --r-badge: 4px;
+  --r-control: 10px;
+  --r-card: 16px;
+  --r-sheet: 20px;
+  --r-full: 999px;
+
+  /* ===== 그림자 (떠 있는 것에만) ===== */
+  --shadow-1: 0 1px 4px rgba(16, 24, 40, 0.06);
+  --shadow-2: 0 4px 16px rgba(16, 24, 40, 0.08);
+  --shadow-3: 0 12px 32px rgba(16, 24, 40, 0.12);
+
+  /* ===== 겹침 순서 (100 이하) ===== */
+  --z-sticky: 10;
+  --z-sheet: 50;
+  --z-toast: 60;
+
+  /* ===== 움직임 ===== */
+  --dur-fast: 150ms;
+  --dur: 250ms;
+  --dur-slow: 400ms;
+  --ease: cubic-bezier(0.35, 0, 0.35, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.15, 1);
+  --ease-exit: cubic-bezier(0.35, 0, 1, 1);
+
+  color-scheme: light;
+}
+
+/* ===== 다크 모드 ===== */
+@media (prefers-color-scheme: dark) {
+  .dc-content:not([data-theme="light"]) {
+    --bg: #121418;
+    --surface: #1b1e24;
+    --surface-raised: #252930;
+    --fill-subtle: #252930;
+    --text-strong: #eef0f3;
+    --text: #c4cad3;
+    --text-muted: #8e97a4;
+    --icon-muted: #6b7380;
+    --text-disabled: #5d6571;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --focus: #7aa5ff;
+    --logo-ink: #eceef1;
+    --positive: #3ccf8e;  --positive-weak: #15302a;
+    --warning:  #f0b44a;  --warning-weak:  #33291a;
+    --critical: #ff8a5c;  --critical-weak: #3a2219;
+    --info:     #7aa5ff;  --info-weak:     #1d2840;
+    --accent: var(--accent-dark);
+    --on-accent: var(--on-accent-dark);
+    --second: #e8e8e8;
+    --shadow-1: none; --shadow-2: none; --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+.dc-content[data-theme="dark"],
+.dc-content [data-theme="dark"] {
+  --bg: #121418;
+  --surface: #1b1e24;
+  --surface-raised: #252930;
+  --fill-subtle: #252930;
+  --text-strong: #eef0f3;
+  --text: #c4cad3;
+  --text-muted: #8e97a4;
+  --icon-muted: #6b7380;
+  --text-disabled: #5d6571;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --focus: #7aa5ff;
+  --logo-ink: #eceef1;
+  --positive: #3ccf8e;  --positive-weak: #15302a;
+  --warning:  #f0b44a;  --warning-weak:  #33291a;
+  --critical: #ff8a5c;  --critical-weak: #3a2219;
+  --info:     #7aa5ff;  --info-weak:     #1d2840;
+  --accent: var(--accent-dark);
+  --on-accent: var(--on-accent-dark);
+  --second: #e8e8e8;
+  --shadow-1: none; --shadow-2: none; --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+/* 래퍼 안 일부만 라이트로 되돌릴 때 */
+.dc-content [data-theme="light"] {
+  --bg: var(--gray-100); --surface: #ffffff; --surface-raised: #ffffff; --fill-subtle: var(--gray-100);
+  --text-strong: var(--gray-900); --text: var(--gray-700); --text-muted: var(--gray-600);
+  --icon-muted: var(--gray-500); --text-disabled: var(--gray-400);
+  --line: rgba(16, 24, 40, 0.08); --line-strong: rgba(16, 24, 40, 0.16); --focus: #2a64d4;
+  --logo-ink: var(--donga-ink);
+  --positive: #0b7a52; --positive-weak: #e6f5ee; --warning: #8a5a00; --warning-weak: #fdf3dc;
+  --critical: #b42318; --critical-weak: #fdeeea; --info: #2a64d4; --info-weak: #eaf1fd;
+  --accent: var(--accent-light); --on-accent: var(--on-accent-light); --second: var(--second-base);
+  color-scheme: light;
+}
+
+/* ===== 자동 계산 (건드리지 않음) ===== */
+.dc-content, .dc-content [data-theme] {
+  --accent-press: color-mix(in oklch, var(--accent) 86%, black);
+  --accent-weak: color-mix(in oklch, var(--accent) 9%, var(--surface));
+  --accent-weak-press: color-mix(in oklch, var(--accent) 16%, var(--surface));
+  --accent-text: color-mix(in oklch, var(--accent) 90%, var(--text-strong));
+}
+@media (prefers-color-scheme: dark) {
+  .dc-content:not([data-theme="light"]) { --accent-press: color-mix(in oklch, var(--accent) 85%, white); }
+}
+.dc-content[data-theme="dark"], .dc-content [data-theme="dark"] { --accent-press: color-mix(in oklch, var(--accent) 85%, white); }
+
+/* ===== 다이얼: 촘촘 (교사, 관리 화면) ===== */
+.dc-content[data-density="compact"], .dc-content [data-density="compact"] {
+  --fs-caption: 0.75rem;
+  --fs-small: 0.8125rem;
+  --fs-body: 0.875rem;
+  --fs-body-lg: 0.875rem;
+  --fs-title-s: 1rem;
+  --fs-title: 1.125rem;
+  --fs-title-l: 1.375rem;
+  --lh-body: 1.45;
+  --fw-medium: 400;
+  --fw-bold: 600;
+  --row-h: 2.5rem;
+  --btn-h: 2.75rem;         /* 두클래스 최소 44 를 지킨다 */
+  --btn-h-s: 2.75rem;
+  --page-x: 1rem;
+  --r-control: 7px;
+  --r-card: 10px;
+  --r-sheet: 14px;
+}
+
+/* ===== 다이얼: 브랜드 ===== */
+.dc-content[data-personality="brand"], .dc-content [data-personality="brand"] {
+  --r-badge: 0; --r-control: 0; --r-card: 0; --r-sheet: 0;  /* CI의 각진 ㄷ을 따라 모서리 0 */
+}
+
+/* ===== 래퍼 기본 ===== */
+.dc-content {
+  position: relative;       /* 시트, 토스트는 position:fixed 대신 이 안에서 absolute */
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-strong);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.dc-content [data-theme] { background: var(--bg); color: var(--text-strong); }
+.dc-content,
+.dc-content *,
+.dc-content *::before,
+.dc-content *::after { box-sizing: border-box; }
+.dc-content .dc-h1, .dc-content .dc-h2, .dc-content .dc-h3 {
+  font-family: var(--font-display); line-height: var(--lh-title); letter-spacing: var(--ls-title); margin: 0;
+}
+.dc-content :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.dc-content .num { font-variant-numeric: tabular-nums; }
+.dc-content .dc-sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* 누르면 살짝 줄어듦 */
+.dc-content .pressable { transition: transform var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
+.dc-content .pressable:active { transform: scale(0.97); }
+
+/* 움직임 줄이기: !important 대신 시간 변수를 0으로 */
+@media (prefers-reduced-motion: reduce) {
+  .dc-content { --dur-fast: 0ms; --dur: 0ms; --dur-slow: 0ms; }
+  .dc-content .pressable:active { transform: none; }
+}
+
+
+.dc-content .dc-logo { display: block; width: 100%; max-width: 15rem; height: auto; overflow: visible; }
+.dc-content .dc-logo .dc-logo-d,
+.dc-content .dc-logo .dc-logo-word { fill: var(--logo-ink); }
+.dc-content .dc-logo .dc-logo-o { fill: var(--donga-red); }
+
+/* 붙은 자리: ㄷ의 열린 오른쪽과 ㅇ의 곧은 왼쪽이 맞닿아 가운데에서 D 하나가 된다 */
+.dc-content .dc-logo.is-open .dc-logo-d { animation: dc-logo-d 1.5s cubic-bezier(0.2, 0, 0, 1) both; }
+.dc-content .dc-logo.is-open .dc-logo-o { animation: dc-logo-o 1.5s cubic-bezier(0.2, 0, 0, 1) both; }
+.dc-content .dc-logo.is-open .dc-logo-word { animation: dc-logo-word 1.5s cubic-bezier(0.2, 0, 0, 1) both; }
+
+@keyframes dc-logo-d {
+  0%   { transform: translate(184.75px, -41.25px); opacity: 0; }
+  15%  { transform: translate(184.75px, -41.25px); opacity: 1; }
+  35%  { transform: translate(184.75px, -41.25px); }
+  80%, 100% { transform: translate(0, 0); opacity: 1; }
+}
+@keyframes dc-logo-o {
+  0%   { transform: translate(-182.25px, 41.25px); opacity: 0; }
+  15%  { transform: translate(-182.25px, 41.25px); opacity: 1; }
+  35%  { transform: translate(-182.25px, 41.25px); }
+  80%, 100% { transform: translate(0, 0); opacity: 1; }
+}
+@keyframes dc-logo-word {
+  0%, 45% { opacity: 0; clip-path: inset(0 50% 0 50%); }
+  100%    { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dc-content .dc-logo.is-open .dc-logo-d,
+  .dc-content .dc-logo.is-open .dc-logo-o,
+  .dc-content .dc-logo.is-open .dc-logo-word { animation: none; }
+}
+
+
+/* ===== 이 화면 ===== */
+.dc-content .qz { max-width: 40rem; margin: 0 auto; padding: var(--sp-6) var(--page-x) var(--sp-16); }
+.dc-content .qz-top { display: flex; align-items: center; justify-content: flex-end; margin-bottom: var(--sp-6); }
+.dc-content .seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--surface); border-radius: var(--r-control); }
+.dc-content .seg-btn {
+  min-height: var(--touch); min-width: var(--touch); padding: 0 var(--sp-3); border: 0; border-radius: calc(var(--r-control) - 3px);
+  background: transparent; color: var(--text-muted); font: inherit; font-size: var(--fs-small); font-weight: var(--fw-medium); cursor: pointer;
+}
+.dc-content .seg-btn[aria-pressed="true"] { background: var(--fill-subtle); color: var(--text-strong); font-weight: var(--fw-semibold); }
+
+.dc-content .intro { background: var(--surface); border-radius: var(--r-card); padding: var(--sp-10) var(--sp-6) var(--sp-8); text-align: center; }
+.dc-content .intro .dc-logo { margin: 0 auto var(--sp-8); max-width: 13rem; }
+.dc-content .intro-title { font-size: var(--fs-title); font-weight: var(--fw-bold); }
+.dc-content .intro-sub { margin: var(--sp-2) 0 var(--sp-8); color: var(--text-muted); }
+
+.dc-content .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  min-height: var(--btn-h); padding: 0 var(--sp-6); border: 0; border-radius: var(--r-control);
+  font: inherit; font-weight: var(--fw-semibold); cursor: pointer;
+}
+.dc-content .btn-primary { background: var(--accent); color: var(--on-accent); }
+.dc-content .btn-primary:hover { background: var(--accent-press); }
+.dc-content .btn-primary:disabled { background: var(--surface); color: var(--text-disabled); cursor: default; }
+.dc-content .btn-ghost { background: var(--fill-subtle); color: var(--text-strong); }
+.dc-content .btn-block { width: 100%; }
+
+.dc-content .progress { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); color: var(--text-muted); font-size: var(--fs-small); }
+.dc-content .bar { flex: 1; height: 6px; border-radius: var(--r-full); background: var(--line-strong); overflow: hidden; }
+.dc-content .bar-fill { width: 0; height: 100%; background: var(--accent); border-radius: inherit; transition: width var(--dur) var(--ease); }
+
+.dc-content .card { background: var(--surface); border-radius: var(--r-card); padding: var(--sp-6); }
+.dc-content .q-title { font-size: var(--fs-title-s); font-weight: var(--fw-bold); margin-bottom: var(--sp-2); }
+.dc-content .q-desc { color: var(--text-muted); margin: 0 0 var(--sp-5); }
+.dc-content .chart { display: block; width: 100%; height: auto; margin-bottom: var(--sp-2); }
+.dc-content .chart .ax { stroke: var(--line-strong); }
+.dc-content .chart .lbl { fill: var(--text-muted); font-size: 12px; }
+.dc-content .chart .rain { fill: var(--second); opacity: 0.3; }
+.dc-content .chart .temp { stroke: var(--accent); fill: none; stroke-width: 2.5; }
+.dc-content .table-alt { margin-bottom: var(--sp-4); color: var(--text-muted); font-size: var(--fs-small); }
+.dc-content .table-alt summary { cursor: pointer; min-height: var(--touch); display: flex; align-items: center; }
+.dc-content .table-alt table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.dc-content .table-alt th, .dc-content .table-alt td { padding: var(--sp-1) var(--sp-2); text-align: right; }
+
+.dc-content .opts { display: grid; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.dc-content .opt {
+  display: flex; align-items: center; gap: var(--sp-3); width: 100%; min-height: var(--row-h); padding: 0 var(--sp-4);
+  border: 1.5px solid var(--line-strong); border-radius: var(--r-control); background: var(--surface);
+  color: var(--text-strong); font: inherit; text-align: left; cursor: pointer;
+}
+.dc-content .opt .mark { flex: none; width: 1.25rem; height: 1.25rem; border-radius: var(--r-full); border: 1.5px solid var(--icon-muted); display: grid; place-items: center; }
+.dc-content .opt[aria-checked="true"] { border-color: var(--accent); background: var(--accent-weak); }
+.dc-content .opt[aria-checked="true"] .mark { border-color: var(--accent); background: var(--accent); }
+.dc-content .opt .mark svg { width: 0.75rem; height: 0.75rem; stroke: var(--on-accent); fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.dc-content .opt[aria-checked="true"] .mark svg { opacity: 1; }
+.dc-content .opt:disabled { cursor: default; }
+.dc-content .opt.is-answer { border-color: var(--positive); }
+
+.dc-content .fb { display: flex; gap: var(--sp-3); padding: var(--sp-4); border-radius: var(--r-control); }
+.dc-content .fb svg { flex: none; width: 1.25rem; height: 1.25rem; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dc-content .fb-ok { background: var(--positive-weak); color: var(--positive); }
+.dc-content .fb-no { background: var(--critical-weak); color: var(--critical); }
+.dc-content .fb p { margin: 0; color: var(--text-strong); }
+.dc-content .fb strong { display: block; color: inherit; }
+
+.dc-content .actions { position: sticky; bottom: 0; z-index: var(--z-sticky); padding: var(--sp-3) 0 var(--sp-4); background: var(--bg); }
+.dc-content .done { text-align: center; }
+.dc-content .done-sub { margin: 0; color: var(--text-muted); }
+.dc-content .done .big { font-size: var(--fs-title); font-weight: var(--fw-bold); margin: var(--sp-2) 0 var(--sp-6); }
+.dc-content [hidden] { display: none; }
+</style>
+</head>
+<body style="margin:0">
+<div class="dc-content" id="app">
+  <main class="qz">
+    <div class="qz-top">
+      <div class="seg" role="group" aria-label="화면 밝기">
+        <button type="button" class="seg-btn" data-mode="system" aria-pressed="true">자동</button>
+        <button type="button" class="seg-btn" data-mode="light" aria-pressed="false">밝게</button>
+        <button type="button" class="seg-btn" data-mode="dark" aria-pressed="false">어둡게</button>
+      </div>
+    </div>
+
+    <section class="intro" id="intro" aria-labelledby="intro-title">
+      <svg class="dc-logo is-open" viewBox="30 38 502 220" role="img" aria-label="동아출판">
+  <g class="dc-logo-d"><path d="M42 132H94V163H72V215H94V246H42Z"/></g>
+  <g class="dc-logo-word"><path fill-rule="evenodd" d="M303.34 169.25 303.93 168.50 303.61 166.75 300.61 162.75 299.75 160.68 298.70 159.75 297.88 158.00 296.71 156.75 295.75 154.62 292.73 150.50 291.75 148.34 290.58 147.25 289.79 145.00 290.11 144.25 291.25 143.72 299.50 143.70 301.74 143.25 302.08 142.25 302.08 135.50 301.57 134.25 289.00 133.89 288.31 133.25 288.11 132.50 288.04 125.25 287.66 124.25 285.50 123.81 279.75 123.78 277.50 124.01 276.80 124.75 276.64 132.50 276.00 133.77 275.00 134.03 265.50 134.00 263.13 134.50 262.81 135.50 262.79 142.00 263.21 143.25 265.50 143.71 273.50 143.72 274.64 144.25 274.96 145.00 274.17 147.25 273.00 148.34 272.02 150.50 269.00 154.62 268.04 156.75 266.88 158.00 266.05 159.75 265.00 160.68 264.14 162.75 261.14 166.75 260.80 168.00 261.01 169.00 262.00 169.30 271.50 169.17 273.75 166.15 274.56 164.25 275.75 163.09 276.59 161.00 277.78 159.75 278.50 157.96 279.75 156.51 280.81 154.00 281.50 153.56 283.25 153.30 284.14 154.00 284.78 155.75 286.16 157.50 286.99 159.50 288.25 160.88 289.00 162.89 290.10 164.00 290.85 165.75 292.04 167.00 293.25 169.16 303.34 169.25ZM165.31 187.75 165.92 186.50 165.94 179.75 165.49 178.50 164.75 178.24 149.50 178.19 148.50 177.83 148.00 176.91 147.99 171.00 148.26 170.00 149.00 169.17 158.75 168.99 161.00 168.35 161.62 166.50 161.64 162.00 161.50 160.68 161.00 159.82 158.75 159.20 135.50 159.22 134.25 158.48 133.71 156.50 133.70 143.75 134.25 142.02 135.75 141.58 160.75 141.38 161.38 141.00 161.64 140.25 161.63 133.50 161.30 132.50 158.50 131.82 125.75 131.79 123.00 132.39 122.57 134.00 122.75 167.53 123.25 168.48 124.00 168.82 135.42 169.25 136.44 171.00 136.47 176.50 135.99 177.75 134.75 178.22 119.00 178.34 118.39 179.00 118.28 179.75 118.29 186.50 118.62 187.50 119.75 187.94 165.31 187.75ZM239.35 187.25 239.95 186.50 240.22 184.50 240.39 158.25 241.25 157.06 243.25 156.61 253.00 156.68 253.50 156.41 254.11 154.50 254.05 148.00 253.75 146.83 253.00 146.38 243.75 146.44 241.00 145.99 240.22 144.50 240.23 133.75 239.87 132.25 239.00 131.79 231.50 131.79 230.44 132.50 230.14 133.75 230.24 185.50 230.75 186.89 231.50 187.34 239.35 187.25ZM200.31 172.25 207.00 171.32 211.00 169.12 213.51 167.00 217.77 160.50 218.95 152.50 218.69 149.00 217.83 144.25 216.63 142.50 215.73 140.25 211.86 136.25 209.50 134.54 203.50 132.28 198.75 132.01 194.00 132.38 188.50 134.38 182.79 139.00 180.80 142.25 178.71 148.00 178.44 152.75 178.74 156.50 181.00 162.76 183.00 165.63 187.00 169.45 192.25 171.67 198.50 172.38 200.31 172.25ZM379.84 175.50 380.44 174.25 380.46 161.50 380.75 160.40 382.25 159.77 393.84 159.50 394.37 158.25 394.30 151.00 393.86 150.25 393.25 150.03 383.25 150.04 381.09 149.75 380.48 148.50 380.48 137.75 380.07 136.25 379.00 135.80 371.50 135.89 370.75 136.30 370.21 137.50 370.29 174.50 370.72 175.25 371.50 175.62 379.84 175.50ZM357.40 173.25 357.96 172.75 358.28 171.50 358.29 165.00 357.50 164.04 354.25 163.66 353.14 162.50 352.82 160.50 352.82 149.25 353.20 147.75 354.00 146.79 355.25 146.16 357.50 146.05 358.18 145.25 358.35 139.25 357.75 137.62 357.00 137.33 320.00 137.34 319.25 137.59 318.66 139.25 318.89 145.50 319.50 146.08 321.50 146.12 322.27 146.50 323.40 148.00 323.76 149.25 323.60 161.75 322.50 163.64 319.50 164.03 318.77 164.75 318.66 170.75 319.25 173.10 357.40 173.25ZM199.75 162.52 195.25 162.16 193.00 161.32 190.47 159.00 188.65 155.25 188.30 153.75 188.49 150.00 190.50 145.82 192.71 143.75 197.25 142.02 199.50 141.91 201.50 142.26 205.75 144.36 208.10 147.25 209.03 152.25 208.11 157.50 206.29 159.75 203.75 161.81 199.75 162.52ZM341.25 164.03 335.50 164.01 334.75 163.72 334.20 163.00 334.01 149.00 334.38 147.25 335.25 146.19 341.25 146.09 342.00 146.39 342.58 147.25 342.96 149.25 342.90 162.25 342.47 163.50 341.25 164.03ZM301.86 231.25 303.01 229.50 303.16 225.75 302.65 223.75 301.75 222.86 275.50 222.77 274.34 221.75 274.18 219.00 274.59 217.00 275.50 216.24 299.50 216.28 301.25 216.10 301.75 215.74 302.08 213.75 302.08 195.75 301.82 194.50 301.00 193.91 289.24 193.75 288.61 193.00 288.32 191.75 288.25 187.25 288.75 186.12 289.75 185.78 305.75 185.58 306.20 184.50 306.22 178.00 305.76 176.25 305.00 175.99 259.75 175.99 259.00 176.24 258.53 177.75 258.55 184.50 259.00 185.58 275.25 185.75 276.44 186.25 276.93 187.25 276.84 191.75 276.47 193.00 275.75 193.74 265.50 193.86 263.25 194.41 262.79 195.75 262.85 200.00 263.25 201.26 265.75 201.80 289.00 201.75 290.25 202.21 290.71 203.25 290.60 207.25 289.50 208.25 265.50 208.26 263.12 208.75 262.78 209.75 262.81 228.50 263.29 230.50 263.91 231.00 265.75 231.47 301.86 231.25ZM379.76 211.25 380.74 209.00 380.82 203.75 380.52 202.75 379.75 202.11 355.75 202.02 353.25 201.35 352.53 198.75 352.41 181.00 351.75 180.33 351.00 180.18 343.75 180.21 342.75 180.70 342.44 181.75 342.47 208.50 342.76 210.50 343.25 211.24 379.76 211.25ZM142.56 235.25 150.52 233.50 153.75 231.66 157.50 227.99 158.44 226.25 159.60 225.00 161.50 219.57 161.91 213.25 161.55 210.00 159.64 204.75 157.34 201.25 155.10 199.00 151.00 196.41 148.12 195.75 145.50 194.66 141.25 194.32 137.00 194.73 131.25 196.64 128.50 198.49 126.62 200.25 124.75 202.28 122.52 206.00 121.18 211.75 120.74 215.25 121.20 218.50 122.68 223.75 124.90 227.50 128.72 231.50 133.00 233.82 140.50 235.40 142.56 235.25ZM142.75 224.77 140.75 224.91 137.00 224.26 135.84 223.75 132.20 220.00 130.86 215.25 131.09 213.25 132.50 208.86 134.93 206.25 138.00 204.69 140.00 204.18 144.50 204.55 147.97 206.25 150.10 208.50 151.57 211.50 151.98 213.25 151.88 217.00 149.75 221.64 146.75 223.92 142.75 224.77Z"/></g>
+  <g class="dc-logo-o"><path d="M461 50A56.5 56.5 0 0 1 461 163V134.5A28 28 0 0 0 461 78.5Z"/></g>
+</svg>
+      <h1 class="dc-h1 intro-title" id="intro-title">기후 그래프 읽기</h1>
+      <p class="intro-sub">기온과 강수량 그래프를 보고 어느 기후인지 골라 보세요. 3문제예요.</p>
+      <button type="button" class="btn btn-primary btn-block" id="start">문제 풀기 시작</button>
+    </section>
+
+    <section id="quiz" hidden>
+      <div class="progress"><span class="num" id="step">1 / 3</span><div class="bar" aria-hidden="true"><div class="bar-fill" id="bar"></div></div></div>
+      <div class="card">
+        <h2 class="dc-h2 q-title" id="q-title"></h2>
+        <p class="q-desc">막대는 강수량, 선은 기온이에요.</p>
+        <svg class="chart" id="chart" viewBox="0 0 320 152" role="img" aria-labelledby="chart-desc"><desc id="chart-desc"></desc></svg>
+        <details class="table-alt"><summary>같은 자료를 표로 보기</summary><table id="tbl"></table></details>
+        <div class="opts" role="radiogroup" aria-labelledby="q-title" id="opts"></div>
+        <div id="fb" aria-live="polite"></div>
+      </div>
+      <div class="actions"><button type="button" class="btn btn-primary btn-block" id="check" disabled>정답 확인하기</button></div>
+    </section>
+
+    <section class="card done" id="done" hidden>
+      <p class="done-sub">다 풀었어요</p>
+      <p class="big num" id="score"></p>
+      <button type="button" class="btn btn-ghost btn-block" id="again">처음부터 다시 풀기</button>
+    </section>
+  </main>
+</div>
+<script>
+(function () {
+  var root = document.getElementById('app');
+  function $(id) { return root.querySelector('#' + id); }
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, text) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function svgEl(tag, attrs) {
+    var n = document.createElementNS(NS, tag);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    return n;
+  }
+  function icon(d) {
+    var s = svgEl('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true' });
+    s.appendChild(svgEl('path', { d: d }));
+    return s;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+
+  /* 화면 밝기: 저장하지 않고 지금 화면에서만 바꾼다 */
+  root.querySelectorAll('.seg-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var m = b.getAttribute('data-mode');
+      if (m === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', m);
+      root.querySelectorAll('.seg-btn').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+  });
+
+  var QUESTIONS = [
+    { place: '가', temp: [26,26,27,27,27,27,27,27,27,27,26,26], rain: [250,240,300,280,200,150,160,190,230,260,260,270], answer: 0, why: '1년 내내 기온이 25도를 넘고 비가 많아요.' },
+    { place: '나', temp: [-18,-15,-6,4,12,18,21,19,12,3,-7,-15], rain: [8,8,12,25,45,75,90,80,50,25,15,10], answer: 3, why: '겨울이 길고 영하 15도 아래로 춥고, 여름에 비가 몰려요.' },
+    { place: '다', temp: [11,12,14,17,21,25,28,28,25,20,15,12], rain: [70,60,55,35,15,3,1,2,10,40,65,75], answer: 2, why: '여름이 덥고 건조하며 비는 겨울에 내려요.' }
+  ];
+  var CHOICES = ['열대 우림 기후', '사막 기후', '지중해성 기후', '냉대 기후'];
+  var idx = 0, picked = -1, checked = false, score = 0;
+
+  function drawChart(q) {
+    var svg = $('chart');
+    while (svg.lastChild && svg.lastChild.nodeName !== 'desc') svg.removeChild(svg.lastChild);
+    var x0 = 8, w = 304, top = 6, h = 120, bw = w / 12;
+    svg.appendChild(svgEl('line', { class: 'ax', x1: x0, y1: top + h, x2: x0 + w, y2: top + h }));
+    q.rain.forEach(function (r, i) {
+      var bh = r / 320 * h;
+      svg.appendChild(svgEl('rect', { class: 'rain', x: x0 + i * bw + 3, y: top + h - bh, width: bw - 6, height: bh, rx: 2 }));
+      var t = svgEl('text', { class: 'lbl', x: x0 + i * bw + bw / 2, y: top + h + 18, 'text-anchor': 'middle' });
+      t.textContent = (i + 1) + '월';
+      svg.appendChild(t);
+    });
+    var pts = q.temp.map(function (t, i) { return (x0 + i * bw + bw / 2) + ',' + (top + h - (t + 25) / 60 * h); }).join(' ');
+    svg.appendChild(svgEl('polyline', { class: 'temp', points: pts }));
+    $('chart-desc').textContent = q.place + ' 지역의 월별 기온과 강수량';
+    var tbl = $('tbl'); clear(tbl);
+    var head = el('tr');
+    ['월', '기온(도)', '강수량(mm)'].forEach(function (s) { head.appendChild(el('th', { scope: 'col' }, s)); });
+    tbl.appendChild(head);
+    q.temp.forEach(function (t, i) {
+      var tr = el('tr');
+      [(i + 1) + '월', String(t), String(q.rain[i])].forEach(function (s) { tr.appendChild(el('td', null, s)); });
+      tbl.appendChild(tr);
+    });
+  }
+
+  function select(i) {
+    if (checked) return;
+    picked = i;
+    root.querySelectorAll('.opt').forEach(function (o, k) {
+      o.setAttribute('aria-checked', String(k === i));
+      o.tabIndex = k === i ? 0 : -1;
+    });
+    $('check').disabled = false;
+  }
+
+  function render() {
+    var q = QUESTIONS[idx];
+    picked = -1; checked = false;
+    $('step').textContent = (idx + 1) + ' / ' + QUESTIONS.length;
+    $('bar').style.width = (idx / QUESTIONS.length * 100) + '%';
+    $('q-title').textContent = (idx + 1) + '. (' + q.place + ') 지역은 어느 기후일까요?';
+    drawChart(q);
+    var opts = $('opts'); clear(opts);
+    CHOICES.forEach(function (c, i) {
+      var b = el('button', { type: 'button', class: 'opt', role: 'radio', 'aria-checked': 'false', tabindex: i === 0 ? '0' : '-1' });
+      var mark = el('span', { class: 'mark', 'aria-hidden': 'true' });
+      mark.appendChild(icon('M5 12l5 5 9-10'));
+      b.appendChild(mark);
+      b.appendChild(el('span', null, c));
+      b.addEventListener('click', function () { select(i); });
+      b.addEventListener('keydown', function (e) {
+        var n = null;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') n = (i + 1) % CHOICES.length;
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') n = (i + CHOICES.length - 1) % CHOICES.length;
+        if (n !== null) { e.preventDefault(); select(n); opts.children[n].focus(); }
+      });
+      opts.appendChild(b);
+    });
+    clear($('fb'));
+    $('check').textContent = '정답 확인하기';
+    $('check').disabled = true;
+  }
+
+  function check() {
+    var q = QUESTIONS[idx];
+    if (!checked) {
+      if (picked < 0) return;
+      checked = true;
+      var ok = picked === q.answer;
+      if (ok) score++;
+      root.querySelectorAll('.opt').forEach(function (o, k) { o.disabled = true; if (k === q.answer) o.classList.add('is-answer'); });
+      var box = el('div', { class: 'fb ' + (ok ? 'fb-ok' : 'fb-no') });
+      box.appendChild(icon(ok ? 'M5 12l5 5 9-10' : 'M12 8v5M12 16.5v.5M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z'));
+      var p = el('p');
+      p.appendChild(el('strong', null, ok ? '맞았어요. ' + CHOICES[q.answer] + '예요' : '정답은 ' + CHOICES[q.answer] + '예요'));
+      p.appendChild(document.createTextNode(q.why));
+      box.appendChild(p);
+      $('fb').appendChild(box);
+      $('check').textContent = idx < QUESTIONS.length - 1 ? '다음 문제 보기' : '결과 보기';
+      $('check').focus();
+    } else if (idx < QUESTIONS.length - 1) {
+      idx++; render(); $('q-title').focus();
+    } else {
+      $('quiz').hidden = true; $('done').hidden = false;
+      $('score').textContent = QUESTIONS.length + '문제 중 ' + score + '문제 맞았어요';
+      $('again').focus();
+    }
+  }
+
+  function start() { $('intro').hidden = true; $('done').hidden = true; $('quiz').hidden = false; idx = 0; score = 0; render(); $('q-title').focus(); }
+  $('q-title').tabIndex = -1;
+  $('start').addEventListener('click', start);
+  $('again').addEventListener('click', start);
+  $('check').addEventListener('click', check);
+})();
+</script>
+</body>
+</html>

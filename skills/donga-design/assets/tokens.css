@@ -1,0 +1,265 @@
+/* © 2026 김용현 */
+/*
+  동아 디자인 토큰 (당토 디자인 규격 + 동아출판 CI 색 고정)
+  사용법
+    1. 이 파일 내용을 index.html의 <style> 안에 그대로 붙인다. (CSS 파일을 따로 두지 않는다)
+    2. 화면 전체를 <div class="dc-content">로 감싼다. 모든 규칙은 이 래퍼 안에서만 동작한다.
+       태그 선택자, :root, *, !important를 쓰지 않는다. 새 규칙도 ".dc-content .클래스" 형태로만 쓴다.
+    3. 색은 고정이다. 아래 "CI 색" 블록을 바꾸지 않는다. 다른 색이 필요하면 역할 색(--accent 등)을 쓴다.
+    4. 다이얼: 래퍼나 그 안의 영역에 data-density="compact"(촘촘), data-personality="brand"(브랜드).
+    5. 다크 모드: 시스템 설정을 따르고, 래퍼나 그 안의 영역에 data-theme="light|dark"로 강제할 수 있다.
+  글꼴: 외부 CDN을 쓰지 않는다. assets/fonts/ 의 Pretendard를 아래 @font-face로 불러온다.
+*/
+
+@font-face { font-family: "Pretendard"; font-weight: 400; font-display: swap; src: url("./assets/fonts/Pretendard-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard"; font-weight: 500; font-display: swap; src: url("./assets/fonts/Pretendard-Medium.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard"; font-weight: 600; font-display: swap; src: url("./assets/fonts/Pretendard-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard"; font-weight: 700; font-display: swap; src: url("./assets/fonts/Pretendard-Bold.woff2") format("woff2"); }
+
+.dc-content {
+  /* ===== CI 색 (고정, 바꾸지 않는다) ===== */
+  --donga-red: #ec1940;          /* CI 빨강. 로고와 브랜드 그래픽에만 */
+  --donga-ink: #333333;          /* CI 먹. 로고 ㄷ과 글자표 */
+
+  /* ===== 테마색 (CI에서 만든 값, 고정) ===== */
+  --accent-light: #d4153a;       /* 주색, 라이트: CI 빨강을 OKLCH 밝기만 내림. 흰 글자 대비 5.3 */
+  --on-accent-light: #ffffff;
+  --accent-dark: #ff5a72;        /* 주색, 다크: 밝게 올림. 위 글자 대비 6.2 */
+  --on-accent-dark: #2a0610;
+  --second-base: #333333;        /* 보조색 = CI 먹: 머리 띠, 로고, 차트 둘째 계열. 버튼에 쓰지 않음 */
+
+  /* ===== 회색 10단계 (남색 기운) ===== */
+  --gray-50: #f8f9fb;
+  --gray-100: #f1f3f6;
+  --gray-200: #e4e7ec;
+  --gray-300: #d0d5dd;
+  --gray-400: #a9b1bd;
+  --gray-500: #868f9c;
+  --gray-600: #646d7a;
+  --gray-700: #4a5260;
+  --gray-800: #2f3640;
+  --gray-900: #1a1e25;
+
+  /* ===== 역할 색, 라이트 ===== */
+  --bg: var(--gray-100);
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --fill-subtle: var(--gray-100);
+  --text-strong: var(--gray-900);
+  --text: var(--gray-700);
+  --text-muted: var(--gray-600);
+  --icon-muted: var(--gray-500);
+  --text-disabled: var(--gray-400);
+  --line: rgba(16, 24, 40, 0.08);
+  --line-strong: rgba(16, 24, 40, 0.16);
+  --focus: #2a64d4;
+  --logo-ink: var(--donga-ink);
+
+  /* 위험색은 주색(빨강)과 헷갈리지 않게 주황 쪽으로 옮긴 빨강. 늘 아이콘과 문구를 함께 쓴다 */
+  --positive: #0b7a52;  --positive-weak: #e6f5ee;
+  --warning:  #8a5a00;  --warning-weak:  #fdf3dc;
+  --critical: #b42318;  --critical-weak: #fdeeea;
+  --info:     #2a64d4;  --info-weak:     #eaf1fd;
+
+  --accent: var(--accent-light);
+  --on-accent: var(--on-accent-light);
+  --second: var(--second-base);
+
+  /* ===== 글자 (편안 기본) ===== */
+  --font: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-display: var(--font);
+  --fs-caption: 0.8125rem;  /* 13 */
+  --fs-small: 0.875rem;     /* 14 */
+  --fs-body: 1rem;          /* 16 */
+  --fs-body-lg: 1.125rem;   /* 18: 학생 개인 기기 본문 권장 */
+  --fs-title-s: 1.25rem;    /* 20 */
+  --fs-title: 1.5rem;       /* 24 */
+  --fs-title-l: 1.875rem;   /* 30 */
+  --lh-body: 1.5;
+  --lh-title: 1.35;
+  --ls-title: -0.025em;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* ===== 크기 (편안) ===== */
+  --row-h: 3.5rem;
+  --btn-h: 3.25rem;
+  --btn-h-s: 2.75rem;       /* 작은 버튼도 44 (두클래스 최소 터치 영역) */
+  --touch: 2.75rem;         /* 44, 교실 화면은 --touch-class */
+  --touch-class: 3rem;      /* 48 */
+  --page-x: 1.25rem;
+
+  /* ===== 간격 (4px 단위) ===== */
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.25rem; --sp-6: 1.5rem; --sp-8: 2rem; --sp-10: 2.5rem; --sp-12: 3rem; --sp-16: 4rem;
+
+  /* ===== 모서리 ===== */
+  --r-badge: 4px;
+  --r-control: 10px;
+  --r-card: 16px;
+  --r-sheet: 20px;
+  --r-full: 999px;
+
+  /* ===== 그림자 (떠 있는 것에만) ===== */
+  --shadow-1: 0 1px 4px rgba(16, 24, 40, 0.06);
+  --shadow-2: 0 4px 16px rgba(16, 24, 40, 0.08);
+  --shadow-3: 0 12px 32px rgba(16, 24, 40, 0.12);
+
+  /* ===== 겹침 순서 (100 이하) ===== */
+  --z-sticky: 10;
+  --z-sheet: 50;
+  --z-toast: 60;
+
+  /* ===== 움직임 ===== */
+  --dur-fast: 150ms;
+  --dur: 250ms;
+  --dur-slow: 400ms;
+  --ease: cubic-bezier(0.35, 0, 0.35, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.15, 1);
+  --ease-exit: cubic-bezier(0.35, 0, 1, 1);
+
+  color-scheme: light;
+}
+
+/* ===== 다크 모드 ===== */
+@media (prefers-color-scheme: dark) {
+  .dc-content:not([data-theme="light"]) {
+    --bg: #121418;
+    --surface: #1b1e24;
+    --surface-raised: #252930;
+    --fill-subtle: #252930;
+    --text-strong: #eef0f3;
+    --text: #c4cad3;
+    --text-muted: #8e97a4;
+    --icon-muted: #6b7380;
+    --text-disabled: #5d6571;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --focus: #7aa5ff;
+    --logo-ink: #eceef1;
+    --positive: #3ccf8e;  --positive-weak: #15302a;
+    --warning:  #f0b44a;  --warning-weak:  #33291a;
+    --critical: #ff8a5c;  --critical-weak: #3a2219;
+    --info:     #7aa5ff;  --info-weak:     #1d2840;
+    --accent: var(--accent-dark);
+    --on-accent: var(--on-accent-dark);
+    --second: #e8e8e8;
+    --shadow-1: none; --shadow-2: none; --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+.dc-content[data-theme="dark"],
+.dc-content [data-theme="dark"] {
+  --bg: #121418;
+  --surface: #1b1e24;
+  --surface-raised: #252930;
+  --fill-subtle: #252930;
+  --text-strong: #eef0f3;
+  --text: #c4cad3;
+  --text-muted: #8e97a4;
+  --icon-muted: #6b7380;
+  --text-disabled: #5d6571;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --focus: #7aa5ff;
+  --logo-ink: #eceef1;
+  --positive: #3ccf8e;  --positive-weak: #15302a;
+  --warning:  #f0b44a;  --warning-weak:  #33291a;
+  --critical: #ff8a5c;  --critical-weak: #3a2219;
+  --info:     #7aa5ff;  --info-weak:     #1d2840;
+  --accent: var(--accent-dark);
+  --on-accent: var(--on-accent-dark);
+  --second: #e8e8e8;
+  --shadow-1: none; --shadow-2: none; --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+/* 래퍼 안 일부만 라이트로 되돌릴 때 */
+.dc-content [data-theme="light"] {
+  --bg: var(--gray-100); --surface: #ffffff; --surface-raised: #ffffff; --fill-subtle: var(--gray-100);
+  --text-strong: var(--gray-900); --text: var(--gray-700); --text-muted: var(--gray-600);
+  --icon-muted: var(--gray-500); --text-disabled: var(--gray-400);
+  --line: rgba(16, 24, 40, 0.08); --line-strong: rgba(16, 24, 40, 0.16); --focus: #2a64d4;
+  --logo-ink: var(--donga-ink);
+  --positive: #0b7a52; --positive-weak: #e6f5ee; --warning: #8a5a00; --warning-weak: #fdf3dc;
+  --critical: #b42318; --critical-weak: #fdeeea; --info: #2a64d4; --info-weak: #eaf1fd;
+  --accent: var(--accent-light); --on-accent: var(--on-accent-light); --second: var(--second-base);
+  color-scheme: light;
+}
+
+/* ===== 자동 계산 (건드리지 않음) ===== */
+.dc-content, .dc-content [data-theme] {
+  --accent-press: color-mix(in oklch, var(--accent) 86%, black);
+  --accent-weak: color-mix(in oklch, var(--accent) 9%, var(--surface));
+  --accent-weak-press: color-mix(in oklch, var(--accent) 16%, var(--surface));
+  --accent-text: color-mix(in oklch, var(--accent) 90%, var(--text-strong));
+}
+@media (prefers-color-scheme: dark) {
+  .dc-content:not([data-theme="light"]) { --accent-press: color-mix(in oklch, var(--accent) 85%, white); }
+}
+.dc-content[data-theme="dark"], .dc-content [data-theme="dark"] { --accent-press: color-mix(in oklch, var(--accent) 85%, white); }
+
+/* ===== 다이얼: 촘촘 (교사, 관리 화면) ===== */
+.dc-content[data-density="compact"], .dc-content [data-density="compact"] {
+  --fs-caption: 0.75rem;
+  --fs-small: 0.8125rem;
+  --fs-body: 0.875rem;
+  --fs-body-lg: 0.875rem;
+  --fs-title-s: 1rem;
+  --fs-title: 1.125rem;
+  --fs-title-l: 1.375rem;
+  --lh-body: 1.45;
+  --fw-medium: 400;
+  --fw-bold: 600;
+  --row-h: 2.5rem;
+  --btn-h: 2.75rem;         /* 두클래스 최소 44 를 지킨다 */
+  --btn-h-s: 2.75rem;
+  --page-x: 1rem;
+  --r-control: 7px;
+  --r-card: 10px;
+  --r-sheet: 14px;
+}
+
+/* ===== 다이얼: 브랜드 ===== */
+.dc-content[data-personality="brand"], .dc-content [data-personality="brand"] {
+  --r-badge: 0; --r-control: 0; --r-card: 0; --r-sheet: 0;  /* CI의 각진 ㄷ을 따라 모서리 0 */
+}
+
+/* ===== 래퍼 기본 ===== */
+.dc-content {
+  position: relative;       /* 시트, 토스트는 position:fixed 대신 이 안에서 absolute */
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-strong);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.dc-content [data-theme] { background: var(--bg); color: var(--text-strong); }
+.dc-content,
+.dc-content *,
+.dc-content *::before,
+.dc-content *::after { box-sizing: border-box; }
+.dc-content .dc-h1, .dc-content .dc-h2, .dc-content .dc-h3 {
+  font-family: var(--font-display); line-height: var(--lh-title); letter-spacing: var(--ls-title); margin: 0;
+}
+.dc-content :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.dc-content .num { font-variant-numeric: tabular-nums; }
+.dc-content .dc-sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* 누르면 살짝 줄어듦 */
+.dc-content .pressable { transition: transform var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease); }
+.dc-content .pressable:active { transform: scale(0.97); }
+
+/* 움직임 줄이기: !important 대신 시간 변수를 0으로 */
+@media (prefers-reduced-motion: reduce) {
+  .dc-content { --dur-fast: 0ms; --dur: 0ms; --dur-slow: 0ms; }
+  .dc-content .pressable:active { transform: none; }
+}
