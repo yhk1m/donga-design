@@ -93,6 +93,9 @@
   --touch: 2.75rem;         /* 44, 교실 화면은 --touch-class */
   --touch-class: 3rem;      /* 48 */
   --page-x: 1.25rem;
+  --header-h: 3.5rem;       /* 머리 막대 56 (references/navigation.md) */
+  --tabbar-h: 3.5rem;       /* 아래 탭 막대 56, 안전 영역은 따로 더함 */
+  --rail-w: 5rem;           /* 태블릿 가로 왼쪽 메뉴 막대 80 */
 
   /* ===== 간격 (4px 단위) ===== */
   --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem;

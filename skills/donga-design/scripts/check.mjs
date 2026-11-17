@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // © 2026 양정고등학교 지리교사 김용현 (bgnlkim@gmail.com)
 // 동아 디자인 화면 점검 (당토 디자인 점검에 .dc-content 래퍼 다크 모드를 더함)
-// 쓰는 법: node check.mjs <화면.html> [--widths 390,1280] [--json]
+// 쓰는 법: node check.mjs <화면.html> [--widths 390,820,1180] [--json]
 // 하는 일: 헤드리스 Chrome으로 화면을 열어 라이트와 다크, 휴대폰 폭과 데스크톱 폭에서
 //          글자 대비, 12px 미만 글자, 순수 검정, 이모지, 가운데 점과 긴 대시,
-//          터치 영역, 채운 강조색 버튼 수, 가로 넘침을 찾는다.
+//          터치 영역, 채운 강조색 버튼 수, 가로 넘침(넘친 요소), viewport, 100vh,
+//          휴대폰 입력 칸 글자, 아이콘만 있는 메뉴, 태블릿 글줄 폭을 찾는다.
 // 필요한 것: Node 18 이상, Chrome 또는 Chromium (CHROME_PATH 환경 변수로 지정 가능)
 // 끝 코드: 오류가 하나라도 있으면 1, 없으면 0
 
@@ -18,7 +19,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const target = args.find(a => !a.startsWith('--'));
 if (!target || !existsSync(target)) {
-  console.error('쓰는 법: node check.mjs <화면.html> [--widths 390,1280] [--json]');
+  console.error('쓰는 법: node check.mjs <화면.html> [--widths 390,820,1180] [--json]');
   process.exit(2);
 }
 const wi = args.indexOf('--widths');
@@ -61,7 +62,9 @@ const results = [];
 function one(i) {
   if (i >= widths.length) { document.getElementById('out').textContent = 'RESULT:' + JSON.stringify(results); return; }
   const f = document.createElement('iframe');
-  f.style.cssText = 'border:0;height:900px;width:' + widths[i] + 'px';
+  // 폭에 맞는 기기 높이: 휴대폰 844, 태블릿 세로 1180, 태블릿 가로 820
+  const w = widths[i], h = w < 744 ? 844 : w < 1024 ? 1180 : w <= 1200 ? 820 : 900;
+  f.style.cssText = 'border:0;height:' + h + 'px;width:' + w + 'px';
   f.onload = () => {
     try { if (mode === 'dark') { const d = f.contentDocument; d.documentElement.setAttribute('data-theme', 'dark'); d.querySelectorAll('.dc-content').forEach(n => n.setAttribute('data-theme', 'dark')); } } catch (e) {}
     setTimeout(() => {

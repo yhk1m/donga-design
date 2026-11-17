@@ -162,9 +162,74 @@
       const metaDark = /dark/.test((doc.querySelector('meta[name="color-scheme"]') || {}).content || '');
       if (!metaDark && !/dark/.test(rootCs.colorScheme) && (rootCs.scrollbarColor === 'auto' || !rootCs.scrollbarColor)) add('오류', '스크롤바', null, '다크 모드인데 화면 스크롤바가 밝은 기본 모양 (:root에 color-scheme: dark 필요)');
     }
-    // 8. 가로 넘침
+    // 8. 가로 넘침: 문서 폭과, 화면 밖으로 나간 요소 (references/responsive.md 2절)
     const sw = doc.documentElement.scrollWidth;
-    if (sw > width + 1) add('오류', '가로 넘침', null, `문서 폭 ${sw}px가 화면 폭 ${width}px보다 넓음`);
+    const clips = n => !/^(visible)$/.test(win.getComputedStyle(n).overflowX);
+    const pageClipped = clips(doc.documentElement) || clips(doc.body);
+    if (sw > width + 1 || pageClipped) {
+      const culprits = [];
+      for (const el of all) {
+        if (!visible(el, win)) continue;
+        const cs = win.getComputedStyle(el);
+        if (cs.position === 'fixed') continue;
+        const r = el.getBoundingClientRect();
+        if (r.right <= width + 1 && r.left >= -1) continue;
+        let inside = false;   // 칸 안에서만 스크롤되거나 잘리는 요소는 괜찮다
+        for (let p = el.parentElement; p && p !== doc.body && p !== doc.documentElement; p = p.parentElement) {
+          if (clips(p)) { inside = true; break; }
+        }
+        if (inside || culprits.some(c => c.el.contains(el))) continue;
+        culprits.push({ el, r });
+      }
+      for (const { el, r } of culprits.slice(0, 5)) {
+        const how = r.left < -1 ? `왼쪽 ${Math.round(-r.left)}px` : `오른쪽 ${Math.round(r.right - width)}px`;
+        if (sw > width + 1) add('오류', '가로 넘침', el, `화면 밖으로 ${how} 나감 (폭 ${Math.round(r.width)}px, 고정 폭, 100vw, min-width: 0 빠짐, 화면 밖에 숨긴 메뉴인지 확인${pageClipped ? '. html이나 body의 overflow-x로 가려도 휴대폰에서는 밀리거나 잘림' : ''})`);
+        else add('확인', '가로 넘침', el, `화면 밖으로 ${how} 나갔는데 html이나 body의 overflow-x로 가려 둠 (원인을 고칠 것)`);
+      }
+      if (sw > width + 1 && !culprits.length) add('오류', '가로 넘침', null, `문서 폭 ${sw}px가 화면 폭 ${width}px보다 넓음`);
+    }
+    // 10. 휴대폰과 태블릿 (references/responsive.md)
+    const vp = doc.querySelector('meta[name="viewport"]');
+    if (!vp) add('오류', '뷰포트', null, '<meta name="viewport" content="width=device-width, initial-scale=1"> 가 없음 (휴대폰에서 화면이 작게 줄어 보임)');
+    else {
+      const c = (vp.content || '').replace(/\s/g, '').toLowerCase();
+      if (!/width=device-width/.test(c)) add('오류', '뷰포트', null, `viewport에 width=device-width가 없음 ("${vp.content}")`);
+      if (/user-scalable=(no|0)|maximum-scale=1(\.0)?(,|$)/.test(c)) add('오류', '뷰포트', null, `확대를 막아 둠 ("${vp.content}"). 눈이 불편한 사람이 확대할 수 없음`);
+    }
+    // 100vh: 휴대폰 주소창 때문에 넘친다
+    const vhRules = new Set();
+    const scanRules = rules => {
+      for (const rule of rules) {
+        if (rule.cssRules) scanRules(rule.cssRules);
+        if (rule.style && /(^|[^.\d])100vh/.test(rule.style.cssText)) vhRules.add(rule.selectorText || '');
+      }
+    };
+    for (const sheet of doc.styleSheets) { try { scanRules(sheet.cssRules); } catch (e) {} }
+    for (const el of doc.querySelectorAll('[style*="100vh"]')) vhRules.add(label(el));
+    if (vhRules.size) add('확인', '화면 높이', null, `100vh 사용: ${[...vhRules].slice(0, 4).join(', ')} (휴대폰 주소창 때문에 넘침, 100dvh로)`);
+    if (width < 744) {
+      for (const el of all) {
+        if (!el.matches('input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]):not([type=hidden]), select, textarea') || !visible(el, win)) continue;
+        const fs = parseFloat(win.getComputedStyle(el).fontSize);
+        if (fs < 16) add('확인', '입력 칸 글자', el, `${fs}px (휴대폰에서 16px보다 작으면 아이폰이 누를 때 화면을 확대함)`);
+      }
+      for (const el of doc.querySelectorAll('nav a, nav button, [role=tablist] [role=tab]')) {
+        if (!visible(el, win) || el.closest('[aria-label*="닫기"]')) continue;
+        if (!el.textContent.trim() && el.querySelector('svg, img')) add('확인', '메뉴 이름', el, '아이콘만 있는 메뉴 (탭 막대 항목은 이름을 항상 보여 줌)');
+      }
+    }
+    for (const el of doc.querySelectorAll('button[aria-label*="메뉴"], button[aria-label*="menu" i]')) {
+      if (/닫기|close/i.test(el.getAttribute('aria-label'))) continue;
+      if (!el.hasAttribute('aria-expanded')) add('확인', '햄버거 버튼', el, 'aria-expanded가 없음 (열림 상태를 화면 읽기 프로그램에 알리기)');
+    }
+    if (width >= 744) {
+      for (const el of doc.querySelectorAll('p, li')) {
+        if (!visible(el, win) || el.closest('table, nav')) continue;
+        if (el.textContent.trim().length < 60) continue;
+        const w = el.getBoundingClientRect().width;
+        if (w > 760) add('확인', '글줄 폭', el, `글줄 폭 ${Math.round(w)}px (본문은 40rem 안팎에서 멈추면 읽기 쉬움)`);
+      }
+    }
     return out;
   };
 })();
