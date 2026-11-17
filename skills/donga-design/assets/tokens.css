@@ -280,3 +280,129 @@
 @media (min-width: 1024px) and (orientation: landscape) {
   .dc-content { --page-x: 2rem; }
 }
+
+/* =====================================================================
+   브라우저 기본 부품 (당토 디자인 v1.4.0과 같은 내용, 두클래스 규칙에 맞춘 판)
+   스크롤바, 선택 상자와 펼친 목록, 체크와 라디오, 슬라이더, 입력 칸, 자동 완성 바탕,
+   글자 선택 색, 대화상자 뒤 막까지 테마를 따르게 한다.
+   두클래스는 태그 선택자를 쓰지 않으므로 아래 클래스를 붙여 쓴다.
+     <select class="dc-select">, <input class="dc-input">, <textarea class="dc-input dc-textarea">,
+     스크롤되는 패널 class="dc-scroll", <dialog class="dc-dialog">, <input type="file" class="dc-file">
+   체크, 라디오, 슬라이더, 진행 막대의 색은 .dc-content에서 물려받으므로 클래스가 필요 없다.
+   <head>에는 <meta name="color-scheme" content="light dark">를 넣는다(화면 스크롤바와 첫 화면).
+   ===================================================================== */
+.dc-content, .dc-content [data-theme] {
+  --scroll-thumb: color-mix(in oklch, var(--text-strong) 22%, transparent);
+  --scroll-thumb-hover: color-mix(in oklch, var(--text-strong) 38%, transparent);
+  --field-bg: var(--surface);
+  --field-line: var(--line-strong);
+  --menu-bg: var(--surface-raised);
+}
+
+/* 1. 물려받는 값: 스크롤바 색, 체크와 라디오 색, 입력 커서 색 */
+.dc-content, .dc-content [data-theme] {
+  scrollbar-color: var(--scroll-thumb) transparent;
+  accent-color: var(--accent);
+  caret-color: var(--accent);
+}
+.dc-content, .dc-content * { scrollbar-width: thin; }
+.dc-content ::-webkit-scrollbar { width: 10px; height: 10px; }
+.dc-content ::-webkit-scrollbar-track { background: transparent; }
+.dc-content ::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.dc-content ::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); background-clip: content-box; }
+.dc-content ::-webkit-scrollbar-corner { background: transparent; }
+.dc-content .dc-scroll { overflow: auto; scrollbar-gutter: stable; overscroll-behavior: contain; }
+.dc-content ::selection { background: color-mix(in oklch, var(--accent) 24%, transparent); color: inherit; }
+
+/* 2. 입력 칸과 선택 상자 */
+.dc-content .dc-input, .dc-content .dc-select {
+  font: inherit;
+  font-size: max(1rem, var(--fs-body));   /* 16px 아래면 아이폰이 화면을 확대한다 */
+  color: var(--text-strong);
+  background-color: var(--field-bg);
+  border: 1px solid var(--field-line);
+  border-radius: var(--r-control);
+  min-height: var(--touch);
+  padding: 0 var(--sp-3);
+  color-scheme: inherit;
+}
+.dc-content .dc-input.dc-textarea, .dc-content .dc-input[rows] { padding: var(--sp-3); min-height: 6rem; }
+.dc-content .dc-input::placeholder { color: var(--text-muted); opacity: 1; }
+.dc-content .dc-input:focus-visible, .dc-content .dc-select:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 0; border-color: transparent;
+}
+.dc-content .dc-input:disabled, .dc-content .dc-select:disabled { color: var(--text-disabled); background-color: var(--fill-subtle); }
+.dc-content .dc-input:-webkit-autofill, .dc-content .dc-input:-webkit-autofill:hover, .dc-content .dc-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-strong);
+  box-shadow: 0 0 0 1000px var(--field-bg) inset;
+  transition: background-color 9999s;
+}
+.dc-content .dc-input[type="number"] { font-variant-numeric: tabular-nums; }
+
+/* 선택 상자 화살표: 기본 화살표를 지우고 CSS로 그린 꺾쇠로 (그림 주소를 쓰지 않아 검사기에 걸리지 않는다) */
+.dc-content .dc-select {
+  appearance: none;
+  padding-right: calc(var(--sp-3) + 24px);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--icon-muted) 50%),
+    linear-gradient(135deg, var(--icon-muted) 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position: calc(100% - 21px) 52%, calc(100% - 16px) 52%;
+  background-size: 5px 5px, 5px 5px;
+  cursor: pointer;
+}
+.dc-content .dc-select[multiple] { background-image: none; padding-right: var(--sp-3); }
+/* 펼친 목록의 항목 색 (윈도우의 Chrome, Edge, Firefox는 이 색을 따른다) */
+.dc-content .dc-select > * { background-color: var(--menu-bg); color: var(--text-strong); }
+
+/* 펼친 목록 전체를 꾸밀 수 있는 브라우저(Chrome 135 이상)에서는 목록 모양까지 맞춘다 */
+@supports (appearance: base-select) {
+  .dc-content .dc-select:not([multiple]) {
+    appearance: base-select;
+    background-image: none;
+    padding-right: var(--sp-3);
+    display: inline-flex; align-items: center; gap: var(--sp-2);
+  }
+  .dc-content .dc-select:not([multiple])::picker-icon {
+    content: ""; width: 7px; height: 7px; margin: -4px 4px 0 auto;
+    border-right: 2px solid var(--icon-muted); border-bottom: 2px solid var(--icon-muted);
+    transform: rotate(45deg);
+    transition: rotate var(--dur-fast) var(--ease);
+  }
+  .dc-content .dc-select:not([multiple]):open::picker-icon { rotate: 180deg; margin-top: 4px; }
+  .dc-content .dc-select::picker(select) {
+    appearance: base-select;
+    background: var(--menu-bg);
+    color: var(--text-strong);
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-2);
+    padding: var(--sp-1);
+    margin-block: var(--sp-1);
+    max-height: min(320px, 60vh);
+    overflow: auto;
+  }
+  .dc-content .dc-select > * {
+    min-height: var(--touch); padding: 0 var(--sp-3); border-radius: calc(var(--r-control) - 2px);
+    display: flex; align-items: center; gap: var(--sp-2);
+    background: transparent;
+  }
+  .dc-content .dc-select > *:hover, .dc-content .dc-select > *:focus-visible { background: var(--fill-subtle); outline: none; }
+  .dc-content .dc-select > *:checked { color: var(--accent-text); font-weight: var(--fw-semibold); background: var(--accent-weak); }
+  .dc-content .dc-select > *::checkmark { content: ""; display: none; }
+}
+
+/* 3. 그 밖의 기본 부품 */
+.dc-content .dc-file::file-selector-button {
+  font: inherit; font-weight: var(--fw-semibold);
+  color: var(--text-strong); background: var(--fill-subtle);
+  border: 0; border-radius: calc(var(--r-control) - 2px);
+  padding: var(--sp-2) var(--sp-3); margin-right: var(--sp-3); cursor: pointer;
+}
+.dc-content .dc-dialog { color: var(--text-strong); background: var(--surface-raised); border: 0; border-radius: var(--r-sheet); box-shadow: var(--shadow-3); }
+.dc-content .dc-dialog::backdrop { background: rgba(16, 24, 40, .42); }

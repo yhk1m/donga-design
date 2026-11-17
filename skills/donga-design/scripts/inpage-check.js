@@ -122,6 +122,46 @@
       }
     }
     if (accentFilled > 1) add('확인', '강조 버튼 수', null, `채운 강조색 버튼 ${accentFilled}개 (화면마다 하나가 원칙. 숨은 화면, 다른 탭의 버튼이면 괜찮음)`);
+    // 9. 브라우저 기본 부품 (스크롤바, 선택 상자, 체크, 라디오)
+    const rootCs = win.getComputedStyle(doc.documentElement);
+    {
+      if (!doc.querySelector('meta[name="color-scheme"]')) add('확인', '기본 부품', null, '<meta name="color-scheme" content="light dark"> 가 없음 (첫 화면, 스크롤바, 날짜 선택 창이 테마를 못 따를 수 있음)');
+      const hasDcWrap = !!doc.querySelector('.dc-content');
+      if (!hasDcWrap && (rootCs.scrollbarColor === 'auto' || !rootCs.scrollbarColor)) add('확인', '스크롤바', null, '스크롤바 색이 정해지지 않음 (tokens.css의 브라우저 기본 부품 블록 확인)');
+    }
+    const darkish = c => lum(c) < 0.2;
+    for (const el of all) {
+      if (!el.matches('select, input, textarea, option, optgroup')) continue;
+      const cs = win.getComputedStyle(el);
+      const type = (el.getAttribute('type') || '').toLowerCase();
+      if (el.matches('input') && ['hidden'].includes(type)) continue;
+      if (el.matches('input[type=checkbox], input[type=radio], input[type=range], progress')) {
+        if (cs.accentColor === 'auto') add('확인', '기본 부품', el, `${type} 색이 주색을 따르지 않음 (accent-color 없음)`);
+        if (mode === 'dark' && !/dark/.test(cs.colorScheme)) add('오류', '기본 부품', el, `다크 모드인데 ${type}가 밝은 기본 모양 (color-scheme: ${cs.colorScheme})`);
+        continue;
+      }
+      if (mode !== 'dark') continue;
+      const isOption = el.matches('option, optgroup');
+      if (!isOption && !visible(el, win)) continue;
+      const { bg } = isOption ? { bg: over(rgba(cs.backgroundColor), [255, 255, 255, 1]) } : bgOf(el, win);
+      const schemeDark = /dark/.test(cs.colorScheme);
+      const bgTransparent = rgba(cs.backgroundColor)[3] === 0;
+      if (isOption) {
+        if (bgTransparent ? !schemeDark : !darkish(bg)) add('오류', '펼친 목록', el.closest('select') || el, `다크 모드인데 펼친 목록 항목이 밝게 보일 수 있음 (option 바탕 ${bgTransparent ? '없음' : hex(bg)}, color-scheme: ${cs.colorScheme})`);
+      } else if (!darkish(bg) || !schemeDark) {
+        add('오류', '기본 부품', el, `다크 모드인데 ${el.tagName.toLowerCase()}${type ? '[' + type + ']' : ''} 바탕 ${hex(bg)}, color-scheme: ${cs.colorScheme}`);
+      }
+    }
+    if (mode === 'dark') {
+      for (const el of all) {
+        const cs = win.getComputedStyle(el);
+        if (!/(auto|scroll)/.test(cs.overflowY + cs.overflowX)) continue;
+        if (el.scrollHeight <= el.clientHeight + 1 && el.scrollWidth <= el.clientWidth + 1) continue;
+        if (!/dark/.test(cs.colorScheme) && (cs.scrollbarColor === 'auto' || !cs.scrollbarColor)) add('오류', '스크롤바', el, '다크 모드인데 스크롤바가 밝은 기본 모양');
+      }
+      const metaDark = /dark/.test((doc.querySelector('meta[name="color-scheme"]') || {}).content || '');
+      if (!metaDark && !/dark/.test(rootCs.colorScheme) && (rootCs.scrollbarColor === 'auto' || !rootCs.scrollbarColor)) add('오류', '스크롤바', null, '다크 모드인데 화면 스크롤바가 밝은 기본 모양 (:root에 color-scheme: dark 필요)');
+    }
     // 8. 가로 넘침
     const sw = doc.documentElement.scrollWidth;
     if (sw > width + 1) add('오류', '가로 넘침', null, `문서 폭 ${sw}px가 화면 폭 ${width}px보다 넓음`);

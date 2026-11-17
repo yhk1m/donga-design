@@ -1,6 +1,6 @@
 {
   "name": "donga-design",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "동아출판 CI 색을 고정하고 당토 디자인 규격을 따르는 프론트엔드 디자인 스킬. 라이트와 다크 모드, CI 열림 로고, 두클래스 구조와 보안 규칙을 담았다.",
   "author": { "name": "양정고등학교 지리교사 김용현", "email": "bgnlkim@gmail.com" },
   "homepage": "https://github.com/yhk1m/donga-design",
